@@ -131,11 +131,11 @@ public class UserRepository {
         Session session = sf.openSession();
         try (session) {
             Transaction currentTransaction = session.beginTransaction();
-            User result = session.createQuery("FROM User WHERE login = :fLogin", User.class)
+            Optional<User> result = session.createQuery("FROM User WHERE login = :fLogin", User.class)
                     .setParameter("fLogin", login)
-                    .uniqueResult();
+                    .uniqueResultOptional();
             currentTransaction.commit();
-            return Optional.ofNullable(result);
+            return result;
         } catch (Exception e) {
             session.getTransaction().rollback();
             throw e;
