@@ -3,6 +3,7 @@ package ru.job4j.cars.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -17,10 +18,13 @@ public class PriceHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Include
     private int id;
-
+    @NonNull
     private BigInteger before;
     private BigInteger after;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created;
+
+    public PriceHistory() {
+    }
 }
