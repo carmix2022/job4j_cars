@@ -1,19 +1,15 @@
 package ru.job4j.cars.repository;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import ru.job4j.cars.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @AllArgsConstructor
 public class UserRepository {
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
 
     /**
      * Сохранить в базе.
@@ -21,16 +17,8 @@ public class UserRepository {
      * @return пользователь с id.
      */
     public User create(User user) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            session.save(user);
-            currentTransaction.commit();
-            return user;
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        crudRepository.run(session -> session.persist(user));
+        return user;
     }
 
     /**
@@ -38,15 +26,7 @@ public class UserRepository {
      * @param user пользователь.
      */
     public void update(User user) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            session.update(user);
-            currentTransaction.commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        crudRepository.run(session -> session.merge(user));
     }
 
     /**
@@ -54,17 +34,10 @@ public class UserRepository {
      * @param userId ID
      */
     public void delete(int userId) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            User user = new User();
-            user.setId(userId);
-            session.delete(user);
-            currentTransaction.commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        crudRepository.run(
+                "delete from User where id = :fId",
+                Map.of("fId", userId)
+        );
     }
 
     /**
@@ -72,16 +45,7 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            List<User> result = session.createQuery("FROM User ORDER BY id DESC", User.class).list();
-            currentTransaction.commit();
-            return result;
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        return crudRepository.query("from User order by id asc", User.class);
     }
 
     /**
@@ -89,16 +53,10 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            User result = session.get(User.class, userId);
-            currentTransaction.commit();
-            return Optional.ofNullable(result);
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        return crudRepository.optional(
+                "from User where id = :fId", User.class,
+                Map.of("fId", userId)
+        );
     }
 
     /**
@@ -107,19 +65,10 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            List<User> resultList;
-            Query<User> query = session.createQuery("FROM User WHERE login LIKE :key", User.class);
-            query.setParameter("key", "%" + key + "%");
-            resultList = new ArrayList<>(query.list());
-            currentTransaction.commit();
-            return resultList;
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        return crudRepository.query(
+                "from User where login like :fKey", User.class,
+                Map.of("fKey", "%" + key + "%")
+        );
     }
 
     /**
@@ -128,17 +77,9 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        Session session = sf.openSession();
-        try (session) {
-            Transaction currentTransaction = session.beginTransaction();
-            Optional<User> result = session.createQuery("FROM User WHERE login = :fLogin", User.class)
-                    .setParameter("fLogin", login)
-                    .uniqueResultOptional();
-            currentTransaction.commit();
-            return result;
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        }
+        return crudRepository.optional(
+                "from User where login = :fLogin", User.class,
+                Map.of("fLogin", login)
+        );
     }
 }

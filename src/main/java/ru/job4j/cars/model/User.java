@@ -22,4 +22,8 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "auto_user_id")
     private List<Post> userPosts = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private List<Owner> owners = new ArrayList<>();
 }
