@@ -18,13 +18,10 @@ public class PriceHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Include
     private int id;
-    @NonNull
+
     private BigInteger before;
     private BigInteger after;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created;
-
-    public PriceHistory() {
-    }
 }

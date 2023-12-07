@@ -20,6 +20,8 @@ public class Post {
     private int id;
 
     private String description;
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created;
 
     @OneToMany(cascade = CascadeType.ALL)
