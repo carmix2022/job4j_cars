@@ -20,6 +20,7 @@ public class Post {
     private int id;
 
     private String description;
+    private String filePath;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private LocalDateTime created;
